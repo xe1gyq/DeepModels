@@ -9,11 +9,13 @@ from models.resnet import ResNet
 from models.inception_v2 import InceptionV2
 from models.inception_v3 import InceptionV3
 from trainers.predefined_loss import *
+from statsd import StatsClient
 
 class ClfTrainer:
     def __init__(self, clf_model, clf_dataset):
         self.clf_model = clf_model
         self.clf_dataset = clf_dataset
+        self.statsd = StatsClient(host='10.219.30.153', port=8125)
 
     def __run_train__(self, sess, input, output,
                         batch_i, batch_size,
@@ -62,13 +64,26 @@ class ClfTrainer:
                                               cost_func, train_op,
                                               self.clf_model.scale_to_imagenet)
                     print('Epoch {:>2}, {} Batch {}: '.format(epoch + 1, self.clf_dataset.name, batch_i), end='')
+
+                    metric_name = "{},project={},dataset={}".format('epoch', 'deepmodels', self.clf_dataset.name)
+                    self.statsd.gauge(metric_name, epoch + 1)
+
+                    metric_name = "{},project={},dataset={}".format('batch', 'deepmodels', self.clf_dataset.name)
+                    self.statsd.gauge(metric_name, batch_i)
+
                     print('Avg. Loss: {} '.format(loss), end='')
+
+                    metric_name = "{},project={},dataset={}".format('loss', 'deepmodels', self.clf_dataset.name)
+                    self.statsd.gauge(metric_name, loss)
 
                     valid_acc = self.__run_accuracy_in_valid_set__(sess,
                                                                    input, output,
                                                                    accuracy, batch_size,
                                                                    self.clf_model.scale_to_imagenet)
                     print('Validation Accuracy {:.6f}'.format(valid_acc))
+
+                    metric_name = "{},project={},dataset={}".format('accuracy', 'deepmodels', self.clf_dataset.name)
+                    self.statsd.gauge(metric_name, valid_acc)
 
                 if epoch % save_every_epoch == 0:
                     print('epoch: {} is saved...'.format(epoch+1))
