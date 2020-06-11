@@ -14,23 +14,39 @@ from models.inception_v3 import InceptionV3
 from models.densenet import DenseNet
 from trainers.clftrainer import ClfTrainer
 
-learning_rate = 0.0000001
-epochs = 1
-batch_size = 2
+# learning_rate = 0.0000001
+# epochs = 1
+# batch_size = 2
 
 import warnings
 
 def main():
+
+    parser = argparse.ArgumentParser(description='DeepModels')
+    parser.add_argument('-l', '--learning', type=float, default=0.0000001,
+                        help='Learning Rate')
+    parser.add_argument('-e', '--epochs', type=int, default=1,
+                        help='Epochs')
+    parser.add_argument('-b', '--batch', type=int, default=2,
+                        help='Batch Size')
+    args = parser.parse_args()
+
+    learning_rate = args.learning
+    epochs = args.epochs
+    batch_size = args.batch
+
+    print(learning_rate, epochs, batch_size)
+
     dataset = Cifar10()
     # dataset = Cifar100()
     # dataset = Mnist()
 
     # model = AlexNet()
-    # model = VGG()
+    model = VGG()
     # model = GoogLeNet()
     # model = ResNet(model_type="101")
     # model = InceptionV3()
-    model = DenseNet(model_type="201")
+    # model = DenseNet(model_type="201")
 
     # training
     trainer = ClfTrainer(model, dataset)
