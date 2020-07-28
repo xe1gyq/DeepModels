@@ -49,7 +49,7 @@ class ClfTrainer:
     def __train__(self, input, output,
                     cost_func, train_op, accuracy,
                     epochs, batch_size, save_model_path,
-                    save_every_epoch=1):
+                    save_every_epoch=1, model_name):
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
 
@@ -65,15 +65,15 @@ class ClfTrainer:
                                               self.clf_model.scale_to_imagenet)
                     print('Epoch {:>2}, {} Batch {}: '.format(epoch + 1, self.clf_dataset.name, batch_i), end='')
 
-                    metric_name = "{},project={},dataset={}".format('epoch', 'deepmodels', self.clf_dataset.name)
+                    metric_name = "{},project={},dataset={},model={}".format('epoch', 'deepmodels', self.clf_dataset.name, model_name)
                     self.statsd.gauge(metric_name, epoch + 1)
 
-                    metric_name = "{},project={},dataset={}".format('batch', 'deepmodels', self.clf_dataset.name)
+                    metric_name = "{},project={},dataset={},model={}".format('batch', 'deepmodels', self.clf_dataset.name, model_name)
                     self.statsd.gauge(metric_name, batch_i)
 
                     print('Avg. Loss: {} '.format(loss), end='')
 
-                    metric_name = "{},project={},dataset={}".format('loss', 'deepmodels', self.clf_dataset.name)
+                    metric_name = "{},project={},dataset={},model={}".format('loss', 'deepmodels', self.clf_dataset.name, model_name)
                     self.statsd.gauge(metric_name, loss)
 
                     valid_acc = self.__run_accuracy_in_valid_set__(sess,
@@ -82,7 +82,7 @@ class ClfTrainer:
                                                                    self.clf_model.scale_to_imagenet)
                     print('Validation Accuracy {:.6f}'.format(valid_acc))
 
-                    metric_name = "{},project={},dataset={}".format('accuracy', 'deepmodels', self.clf_dataset.name)
+                    metric_name = "{},project={},dataset={},model={}".format('accuracy', 'deepmodels', self.clf_dataset.name, model_name)
                     self.statsd.gauge(metric_name, valid_acc)
 
                 if epoch % save_every_epoch == 0:
@@ -157,8 +157,8 @@ class ClfTrainer:
     # default to use AdamOptimizer w/ softmax_cross_entropy_with_logits_v2
     def run_training(self,
                      epochs, batch_size, learning_rate,
-                     save_model_to, save_every_epoch=1,
-                     options=None):
+                     save_model_to, model_name,
+                     save_every_epoch=1, options=None):
         input, output = self.clf_model.set_dataset(self.clf_dataset)
         out_layers = self.clf_model.create_model(input)
 
@@ -167,7 +167,7 @@ class ClfTrainer:
         self.__train__(input, output,
                        cost, train_op, accuracy,
                        epochs, batch_size,
-                       save_model_to, save_every_epoch)
+                       save_model_to, save_every_epoch, model_name)
 
     def resume_training_from_ckpt(self, epochs, batch_size, learning_rate, save_model_from, save_model_to, save_every_epoch=1, options=None):
         graph = tf.Graph()
