@@ -49,7 +49,7 @@ class ClfTrainer:
     def __train__(self, input, output,
                     cost_func, train_op, accuracy,
                     epochs, batch_size, save_model_path,
-                    save_every_epoch=1, model_name):
+                    model_name, save_every_epoch=1):
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
 
@@ -167,7 +167,7 @@ class ClfTrainer:
         self.__train__(input, output,
                        cost, train_op, accuracy,
                        epochs, batch_size,
-                       save_model_to, save_every_epoch, model_name)
+                       save_model_to, model_name, save_every_epoch)
 
     def resume_training_from_ckpt(self, epochs, batch_size, learning_rate, save_model_from, save_model_to, save_every_epoch=1, options=None):
         graph = tf.Graph()
