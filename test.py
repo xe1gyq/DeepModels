@@ -41,6 +41,7 @@ def main():
     # dataset = Cifar100()
     # dataset = Mnist()
 
+    model_name="VGG"
     # model = AlexNet()
     model = VGG()
     # model = GoogLeNet()
@@ -50,7 +51,7 @@ def main():
 
     # training
     trainer = ClfTrainer(model, dataset)
-    trainer.run_training(epochs, batch_size, learning_rate, './cifar10-ckpt')
+    trainer.run_training(epochs, batch_size, learning_rate, './cifar10-ckpt', model_name)
     # trainer.resume_training_from_ckpt(epochs, batch_size, learning_rate, './resnet101-cifar10-new-ckpt-3', './resnet101-cifar10-ckpt')
     # trainer.run_training(epochs, batch_size, learning_rate, './test-ckpt', options={'model_type': 'A' })
     # trainer.resume_training_from_ckpt(epochs, batch_size, learning_rate, './inceptionv3-cifar10-ckpt-5', './inceptionv3-cifar10-new-ckpt')
